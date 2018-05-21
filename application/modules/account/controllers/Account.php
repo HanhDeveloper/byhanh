@@ -17,17 +17,20 @@ class Account extends MY_Controller
         $user_id = get_user_id();
         if ($this->input->method() === 'post') {
 
-            // profile updates
-            $this->user->update($user_id, array(
-                'status' => $this->input->post('status'),
-                'fullname' => $this->input->post('fullname'),
-                'sex' => $this->input->post('sex'),
-                'address' => $this->input->post('address'),
-                'about' => $this->input->post('about')
-            ));
+            if ($this->check_validation()) {
 
-            $this->session->set_flashdata('success', 'Thiết lập đã được lưu lại');
-            redirect($this->uri->uri_string());
+                // profile updates
+                $this->user->update($user_id, array(
+                    'status' => $this->input->post('status'),
+                    'fullname' => $this->input->post('fullname'),
+                    'sex' => $this->input->post('sex'),
+                    'address' => $this->input->post('address'),
+                    'about' => $this->input->post('about')
+                ));
+
+                $this->session->set_flashdata('success', 'Thiết lập đã được lưu lại');
+                redirect($this->uri->uri_string());
+            }
         }
 
         $this->set_title('Thông tin tài khoản');
@@ -44,9 +47,11 @@ class Account extends MY_Controller
 
     private function check_validation()
     {
-        //link_tag()
-//        return $this->form_validation->set_rules($config)
-//            ->run();
-        return false;
+        $this->form_validation->set_rules('status', '', 'trim|required|max_length[100]');
+        $this->form_validation->set_rules('fullname', '', 'trim|required|regex_match[/[a-zA-Z\s]+/]|min_length[8]|max_length[32]');
+        $this->form_validation->set_rules('sex', '', 'trim|required|in_list[?,m,f]');
+        $this->form_validation->set_rules('address', '', 'trim|required|max_length[100]');
+        $this->form_validation->set_rules('about', '', 'trim|required|max_length[500]');
+        return $this->form_validation->run();
     }
 }
